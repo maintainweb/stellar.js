@@ -1,10 +1,16 @@
-[Stellar.js](http://markdalgleish.com/projects/stellar.js/)
-===========================================================
+[![Build Status](https://secure.travis-ci.org/markdalgleish/stellar.js.png)](http://travis-ci.org/markdalgleish/stellar.js)
+
+# Stellar.js
+
+### Parallax scrolling made easy
 
 Full guide and demonstrations available at the [official Stellar.js project page](http://markdalgleish.com/projects/stellar.js/).
 
-Getting Started
----------------
+## Download
+
+Get the [development](https://raw.github.com/markdalgleish/stellar.js/master/jquery.stellar.js) or [production](https://raw.github.com/markdalgleish/stellar.js/master/jquery.stellar.min.js) version, or use a [package manager](https://github.com/markdalgleish/stellar.js#package-managers).
+
+## Getting Started
 
 Stellar.js is a jQuery plugin that provides parallax scrolling effects to any scrolling element. The first step is to run `.stellar()` against the element:
 
@@ -23,8 +29,13 @@ $.stellar();
 
 This will look for any parallax backgrounds or elements within the specified element and reposition them when the element scrolls.
 
-Parallax Elements
------------------
+## Mobile Support
+
+Support in Mobile WebKit browsers requires a touch scrolling library, and a slightly tweaked configuration. For a full walkthrough on how to implement this correctly, read my blog post ["Mobile Parallax with Stellar.js"](http://markdalgleish.com/2012/10/mobile-parallax-with-stellar-js).
+
+Please note that parallax backgrounds are not recommended in Mobile WebKit due to performance constraints. Instead, use parallax elements with static backgrounds.
+
+## Parallax Elements
 
 If you want elements to scroll at a different speed, add the following attribute to any element with a CSS position of absolute, relative or fixed:
 
@@ -32,12 +43,11 @@ If you want elements to scroll at a different speed, add the following attribute
 <div data-stellar-ratio="2">
 ```
 
-The ratio is relative to the natural scroll speed, so a ratio of 0.5 would cause the element to scroll at half-speed, a ratio of 1 would have no effect, and a ratio of 2 would cause the element to scroll at twice the speed.
+The ratio is relative to the natural scroll speed, so a ratio of 0.5 would cause the element to scroll at half-speed, a ratio of 1 would have no effect, and a ratio of 2 would cause the element to scroll at twice the speed. If a ratio lower than 1 is causing the element to appear jittery, try setting its CSS position to fixed.
 
-If a ratio lower than 1 is causing the element to appear jittery, try setting its CSS position to fixed.
+In order for Stellar.js to perform its calculations correctly, all parallax elements must have their dimensions specified in pixels for the axis/axes being used for parallax effects. For example, all parallax elements for a vertical site must have a pixel height specified. If your design prohibits the use of pixels, try using the ['responsive' option](#configuring-everything).
 
-Parallax Backgrounds
---------------------
+## Parallax Backgrounds
 
 If you want an element's background image to reposition on scroll, simply add the following attribute:
 
@@ -47,8 +57,7 @@ If you want an element's background image to reposition on scroll, simply add th
 
 As with parallax elements, the ratio is relative to the natural scroll speed. For ratios lower than 1, to avoid jittery scroll performance, set the element's CSS 'background-attachment' to fixed.
 
-Configuring Offsets
--------------------
+## Configuring Offsets
 
 Stellar.js' most powerful feature is the way it aligns elements.
 
@@ -73,8 +82,7 @@ You can also modify the offsets on a per-element basis using the following data 
      data-stellar-vertical-offset="150">
 ```
 
-Configuring Offset Parents
---------------------------
+## Configuring Offset Parents
 
 By default, offsets are relative to the element's offset parent. This mirrors the way an absolutely positioned element behaves when nested inside an element with a relative position.
 
@@ -102,8 +110,7 @@ Still confused? [See what it looks like with its default offset parents.](http:/
 
 By specifying the h2 element as the offset parent, we can ensure that the alignment of all the stars in a heading is based on the h2 and not the div further down the DOM tree.
 
-Configuring Scroll Positioning
-------------------------------
+## Configuring Scroll Positioning
 
 You can define what it means for an element to 'scroll'. Whether it's the element's scroll position that's changing, its margins or its CSS3 'transform' position, you can define it using the 'scrollProperty' option:
 
@@ -127,8 +134,7 @@ Don't have the level of control you need? Write a plugin!
 
 Otherwise, you're ready to get started!
 
-Configuring Everything
-----------------------
+## Configuring Everything
 
 Below you will find a complete list of options and matching default values:
 
@@ -141,6 +147,9 @@ $.stellar({
   // Set the global alignment offsets
   horizontalOffset: 0,
   verticalOffset: 0,
+
+  // Refreshes parallax content on window load and resize
+  responsive: false,
 
   // Select which property is used to calculate scroll.
   // Choose 'scroll', 'position', 'margin' or 'transform',
@@ -159,17 +168,13 @@ $.stellar({
   // Hide parallax elements that move outside the viewport
   hideDistantElements: true,
 
-  // Set how often the viewport size is detected
-  viewportDetectionInterval: 1000,
-
   // Customise how elements are shown and hidden
   hideElement: function($elem) { $elem.hide(); },
   showElement: function($elem) { $elem.show(); }
 });
 ```
 
-Writing a Scroll Property Plugin
---------------------------------
+## Writing a Scroll Property Plugin
 
 Out of the box, Stellar.js supports the following scroll properties:
 'scroll', 'position', 'margin' and 'transform'.
@@ -178,18 +183,11 @@ If your method for creating a scrolling interface isn't covered by one of these,
 
 ``` js
 $.stellar.scrollProperty.margin = {
-  getTop: function($element) {
-    return parseInt($element.css('margin-top'), 10) * -1;
-  },
-  setTop: function($element, val) {
-    $element.css('margin-top', val);
-  },
-
   getLeft: function($element) {
     return parseInt($element.css('margin-left'), 10) * -1;
   },
-  setLeft: function($element, val) {
-    $element.css('margin-left', val);
+  getTop: function($element) {
+    return parseInt($element.css('margin-top'), 10) * -1;
   }
 }
 ```
@@ -202,8 +200,7 @@ $.stellar({
 });
 ```
 
-Writing a Position Property Plugin
-----------------------------------
+## Writing a Position Property Plugin
 
 Stellar.js has two methods for positioning elements built in: 'position' for modifying its top and left properties, and 'transform' for using CSS3 transforms.
 
@@ -228,24 +225,84 @@ $.stellar({
 });
 ```
 
-Using Stellar.js on your site?
-------------------------------
+If, for technical reasons, you need to set both properties at once, you can define a single 'setPosition' function:
 
-[I'd love to hear about it!](http://twitter.com/markdalgleish) Let me know if you'd like me to feature your site here.
+``` js
+$.stellar.positionProperty.foobar = {
+  setPosition: function($element, newLeft, originalLeft, newTop, originalTop) {
+    $element.css('transform', 'translate3d(' +
+      (newLeft - originalLeft) + 'px, ' +
+      (newTop - originalTop) + 'px, ' +
+      '0)');
+  }
+}
 
-How to Build
-------------
+$.stellar({
+  positionProperty: 'foobar'
+});
+```
 
-The code is minified using UglifyJS using the following command:
+## Package Managers
 
-`uglifyjs -o stellar.min.js stellar.js`
+Stellar.js can be installed with [Bower](http://twitter.github.com/bower/):
 
-Contributing to Stellar.js
---------------------------
+``` bash
+$ bower install jquery.stellar
+```
 
-If you want to contribute in a way that changes the API, please file an issue before submitting a pull request so we can dicuss how to appropriately integrate your ideas.
+## Sites Using Stellar.js
 
-Questions?
-----------
+* [National Geographic - Alien Deep Interactive](http://channel.nationalgeographic.com/channel/alien-deep/interactives/alien-deep-interactive)
+* [François Hollande](http://www.parti-socialiste.fr/latimelineduchangement)
+* [Brabus Private Aviation](http://www.brabus-aviation.com/)
+* [Mary and Frankie's Wedding](http://www.maryandfrankiewedding.com/)
+* [IT Support London](http://www.itsupportlondon.com)
+* [Ashford University](http://bright.ashford.edu)
+* [Clif Adventures](http://www.clifbar.com/adventures)
+* [Mindster](http://www.mindster.org)
+* [WS Interactive](http://www.ws-interactive.fr/methode)
+* [Moire Mag - Untitled](http://www.moiremag.net/untitled)
+* [Carnival of Courage](http://www.carnivalofcourage.com.au)
+* [Ian Poulter](http://www.ianpoulter.com)
+* [360 Strategy Group](http://360strategygroup.com)
+* [Code, Love and Boards](http://codeloveandboards.com/)
+
+I'm sure there are heaps more. [Let me know if you'd like me to feature your site here.](http://twitter.com/markdalgleish)
+
+## How to Build
+
+Stellar.js uses [Node.js](nodejs.org), [Grunt](http://gruntjs.com) and [PhantomJS](http://phantomjs.org/).
+
+Once you've got Node and PhantomJS set up, install the dependencies:
+
+`$ npm install`
+
+To lint, test and minify the project, simply run the following command:
+
+`$ grunt`
+
+Each of the build steps are also available individually.
+
+`$ grunt test` to test the code using QUnit and PhantomJS: 
+
+`$ grunt lint` to validate the code using JSHint.
+
+`$ grunt watch` to continuously lint and test the code while developing.
+
+## Contributing to Stellar.js
+
+Ensure that you successfully test and build the project with `$ grunt` before committing.
+
+Make sure that all plugin changes are made in `src/jquery.stellar.js` (`/jquery.stellar.js` and `/jquery.stellar.min.js` are generated by Grunt).
+
+If you want to contribute in a way that changes the API, please file an issue before submitting a pull request so we can discuss how to appropriately integrate your ideas.
+
+## Questions?
 
 Contact me on GitHub or Twitter: [@markdalgleish](http://twitter.com/markdalgleish)
+
+## License
+
+Copyright 2013, Mark Dalgleish  
+This content is released under the MIT license  
+http://markdalgleish.mit-license.org
